@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -12,12 +12,19 @@ export class UserService {
   ) {}
 
   async register(username: string, password: string): Promise<User> {
-    const hashedPassword = await bcrypt.hash(password, 10); 
-    const newUser = this.userRepository.create({
-      username,
-      password: hashedPassword,
-    });
-    return this.userRepository.save(newUser); 
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = this.userRepository.create({
+        username,
+        password: hashedPassword,
+      });
+      return await this.userRepository.save(newUser);
+    } catch (error) {
+      if (error.code === '23505') { // Postgres unique violation code
+        throw new ConflictException('Username already exists');
+      }
+      throw error;
+    }
   }
 
   async findByUsername(username: string): Promise<User | undefined> {
