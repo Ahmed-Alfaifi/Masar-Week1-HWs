@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Article } from './entities/article.entity';
-import { CreateArticleDto } from './dto/create-article.dto';
+import { CreateArticleDto } from './dto/create-article.dto'; // Import CreateArticleDto
 
 @Injectable()
 export class ArticleService {
@@ -13,6 +13,10 @@ export class ArticleService {
 
   create(createArticleDto: CreateArticleDto): Promise<Article> {
     const article = this.articleRepository.create(createArticleDto);
-    return this.articleRepository.save(article);
+    return this.articleRepository.save(article); // This should be Promise<Article>
+  }
+
+  findAll(): Promise<Article[]> {
+    return this.articleRepository.find();
   }
 }
