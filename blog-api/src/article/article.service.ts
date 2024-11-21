@@ -1,6 +1,7 @@
+// src/article/article.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, In } from 'typeorm'; // Add In here
 import { Article } from './entities/article.entity';
 import { Comment } from '../comment/entities/comment.entity';
 import { User } from '../user/entities/user.entity';
@@ -82,11 +83,13 @@ export class ArticleService {
 
   async addComment(articleId: number, createCommentDto: CreateCommentDto, userId: number) {
     const article = await this.findOne(articleId);
+    
     const comment = this.commentRepository.create({
-      ...createCommentDto,
-      articleId,
+      content: createCommentDto.content,
+      articleId: articleId,
       authorId: userId,
     });
+
     return this.commentRepository.save(comment);
   }
 
@@ -144,5 +147,57 @@ export class ArticleService {
     await this.userRepository.save(user);
 
     return this.findOne(articleId);
+  }
+
+  async getArticleStats(articleId: number) {
+    const article = await this.articleRepository
+      .createQueryBuilder('article')
+      .leftJoinAndSelect('article.likes', 'likes')
+      .leftJoinAndSelect('article.comments', 'comments')
+      .where('article.id = :id', { id: articleId })
+      .getOne();
+
+    return {
+      likesCount: article.likes.length,
+      commentsCount: article.comments.length,
+      createdAt: article.createdAt,
+    };
+  }
+
+  async getUserFeed(userId: number, paginationDto: PaginationDto) {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['following'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const followingIds = user.following.map(f => f.id);
+    followingIds.push(userId); // Include user's own articles
+
+    const [articles, total] = await this.articleRepository.findAndCount({
+      where: {
+        authorId: In(followingIds), // Use In operator here
+      },
+      take: limit,
+      skip,
+      order: { createdAt: 'DESC' },
+      relations: ['author', 'likes'],
+    });
+
+    return {
+      data: articles,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 }

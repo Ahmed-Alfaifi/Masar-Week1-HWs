@@ -1,27 +1,29 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Article } from '../../article/entities/article.entity';
 import { User } from '../../user/entities/user.entity';
 
 @Entity('comments')
 export class Comment {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  content: string;
+    @Column()
+    content: string;
 
-  @ManyToOne(() => Article, article => article.comments)
-  article: Article;
+    @Column({ name: 'authorId' })
+    authorId: number;
 
-  @Column()
-  articleId: number;
+    @Column({ name: 'articleId' })
+    articleId: number;
 
-  @ManyToOne(() => User, user => user.comments)
-  author: User;
+    @CreateDateColumn({ name: 'created_at' })
+    createdAt: Date;
 
-  @Column()
-  authorId: number;
+    @ManyToOne(() => User, user => user.comments)
+    @JoinColumn({ name: 'authorId' })
+    author: User;
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @ManyToOne(() => Article, article => article.comments)
+    @JoinColumn({ name: 'articleId' })
+    article: Article;
 }
