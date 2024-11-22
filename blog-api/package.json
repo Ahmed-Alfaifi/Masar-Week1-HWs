@@ -25,7 +25,11 @@
     "migration:drop-schema": "npm run typeorm schema:drop",
     "migration:create": "npx ts-node ./node_modules/typeorm/cli.js migration:create -n",
     "typeorm": "ts-node -r tsconfig-paths/register -T --files ./node_modules/typeorm/cli.js -d ./ormconfig.ts",
-    "seed": "ts-node src/Scripts/fake-articles.ts"
+    "seed": "ts-node src/Scripts/fake-articles.ts",
+    "test:performance": "ts-node src/scripts/test-performance.ts",
+    "populate:users": "ts-node src/scripts/populate-users.ts",
+    "populate:articles": "ts-node src/scripts/populate-articles.ts",
+    "test:search": "ts-node src/scripts/test-search-performance.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^9.2.0",

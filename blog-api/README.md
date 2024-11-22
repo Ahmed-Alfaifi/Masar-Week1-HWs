@@ -3,19 +3,24 @@
 ![alt text](image.png)
 
 
+## Test
 
-## Tests with Postman
-![alt text](image-1.png)
-![alt text](image-2.png)
-![alt text](image-3.png)
-![alt text](image-4.png)
-![alt text](image-5.png)
-![alt text](image-6.png)
-![alt text](image-7.png)
-![alt text](image-8.png)
+64002 users it took so long that's why I did not populate +100K
 
+1. Query Time Improvement
+   - Without Index: 5.92ms (average)
+   - With Index: 0.68ms (average)
+   - Performance Improvement: 88.5% faster
 
+2. Execution Time Improvement
+   - Without Index: 4.135ms
+   - With Index: 0.029ms
+   - Improvement: 99.3% faster
 
+3. Data Processing Efficiency
+   - Without Index: Full scan of 64002 rows
+   - With Index: Only 2 rows checked
+   - Significantly reduced data processing overhead
 
 
 
